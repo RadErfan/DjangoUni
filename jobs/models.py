@@ -36,6 +36,7 @@ class Resume(models.Model):
     ]
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="وضعیت")
     applied_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ارسال")
+    interview_at = models.DateTimeField(null=True, blank=True, verbose_name="زمان مصاحبه")
 
     def __str__(self):
         return f"{self.job_seeker.username} -> {self.job_position.title}"
