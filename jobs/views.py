@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect
-from .models import JobPosition
-from .form import JobForm
+from .models import JobPosition ,Company
+from .form import JobForm , RegisterForm
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login
+
 
 
 def home(request):
@@ -16,16 +18,37 @@ def job_list(request):
 
 @login_required
 def create_job(request):
-
     if request.method == 'POST':
         form = JobForm(request.POST)
         if form.is_valid():
-            # شغل رو موقتاً نگه دار تا کارفرما رو بهش وصل کنیم
             job = form.save(commit=False)
-            job.employer = request.user  # کارفرما میشه همین کسی که لاگین کرده
+            job.employer = request.user
             job.save()
-            return redirect('job_list')  # بعد از ثبت، برو به لیست شغل‌ها
+            return redirect('job_list')
     else:
         form = JobForm()
+        form.fields['company'].queryset = request.user.companies.all()
 
     return render(request, 'job_form.html', {'form': form})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+
+            # ---> منطق جدید: ساخت شرکت
+            is_employer = form.cleaned_data.get('is_employer')
+            company_name = form.cleaned_data.get('company_name')
+
+            if is_employer and company_name:
+                # ساخت یک شرکت جدید برای این کاربر
+                Company.objects.create(owner=user, name=company_name)
+
+            login(request, user)
+            return redirect('home')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'register.html', {'form': form})

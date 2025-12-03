@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, JobPosition, Resume
-
+from .models import User, JobPosition, Resume, Company
 
 class CustomUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
@@ -11,9 +10,14 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(User, CustomUserAdmin)
 
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'owner', 'website')
+    search_fields = ('name',)
+
 @admin.register(JobPosition)
 class JobPositionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'employer', 'salary_min', 'created_at')
+    list_display = ('title', 'company', 'salary_min', 'created_at')
     search_fields = ('title', 'requirements')
     list_filter = ('created_at',)
 

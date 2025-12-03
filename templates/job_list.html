@@ -18,9 +18,12 @@
                     <span class="badge bg-light text-dark border">{{ job.created_at|date:"Y/m/d" }}</span>
                 </div>
                 
-                <h6 class="card-subtitle mb-3 text-muted small">
-                    <i class="bi bi-building"></i> کارفرما: {{ job.employer.username }}
-                </h6>
+         <h6 class="card-subtitle mb-3 text-muted small">
+    <i class="bi bi-building"></i>
+    {% if job.company %}
+        {{ job.company.name }} {% else %}
+        کارفرما: {{ job.employer.username }} {% endif %}
+</h6>
                 
                 <p class="card-text text-secondary text-truncate">{{ job.requirements }}</p>
                 
