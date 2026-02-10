@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ثبت آگهی شغلی جدید{% endblock %}
+
+{% block content %}
+<style>
+    /* تنظیمات کلی برای این صفحه خاص */
+    body {
+        /* اگر base.html پس‌زمینه داره، این خط رو پاک کن، اگر نه بذار باشه */
+        background-image: radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.25) 0px, transparent 50%),
+                          radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.25) 0px, transparent 50%);
+        background-color: #0f172a;
+    }
+
+    /* کانتینر شیشه‌ای اصلی */
+    .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* افکت نوری بالای کارت */
+    .glass-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent);
+    }
+
+    h2.gradient-text {
+        background: linear-gradient(to right, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900;
+        margin-bottom: 10px;
+    }
+
+    /* استایل لیبل‌ها */
+    label {
+        color: #cbd5e1 !important; /* رنگ طوسی روشن برای متن لیبل */
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        display: block;
+    }
+
+    label i {
+        color: #60a5fa;
+        margin-left: 5px;
+        width: 20px;
+        text-align: center;
+    }
+
+    /* استایل اینپوت‌های شیشه‌ای */
+    .glass-input {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        color: #ffffff !important; /* سفید خالص برای تایپ کردن */
+        padding: 14px 16px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    /* رنگ متن هنگام تایپ و پلیس‌هولدر */
+    .glass-input:focus {
+        background-color: rgba(15, 23, 42, 0.9) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+        outline: none;
+        color: #ffffff !important;
+    }
+
+    .glass-input::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+    }
+
+    /* Select Box Custom Arrow */
+    select.glass-input {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2360a5fa' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: left 1rem center;
+        background-size: 16px 12px;
+        appearance: none;
+    }
+    select.glass-input option {
+        background-color: #1e293b;
+        color: white;
+    }
+
+    /* دکمه ثبت */
+    .btn-glow {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        border: none;
+        padding: 14px 24px;
+        border-radius: 12px;
+        color: white;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        transition: all 0.3s ease;
+    }
+    .btn-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.6);
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+    }
+
+    /* دکمه انصراف */
+    .btn-glass-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #94a3b8;
+        padding: 14px;
+        border-radius: 12px;
+        transition: 0.3s;
+    }
+    .btn-glass-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Switch Toggle */
+    .form-check-input {
+        background-color: rgba(255,255,255,0.1);
+        border-color: rgba(255,255,255,0.2);
+        width: 3em !important;
+        height: 1.5em !important;
+        cursor: pointer;
+    }
+    .form-check-input:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+    }
+    .toggle-wrapper {
+        background: rgba(0,0,0,0.2);
+        padding: 15px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+
+            <div class="glass-card animate__animated animate__fadeInUp">
+                <!-- Header Icon -->
+                <div class="text-center mb-4">
+                    <div style="width: 70px; height: 70px; background: rgba(59, 130, 246, 0.1); border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid rgba(59, 130, 246, 0.2); box-shadow: 0 0 30px rgba(59, 130, 246, 0.2);">
+                        <i class="fas fa-briefcase fa-2x text-primary"></i>
+                    </div>
+                </div>
+
+                <div class="text-center mb-5">
+                    <h2 class="gradient-text">ثبت آگهی استخدام جدید</h2>
+                    <p class="text-muted">فرم را تکمیل کنید تا هم‌تیمی آینده‌تان را پیدا کنید</p>
+                </div>
+
+                <form method="post" id="jobForm">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger bg-danger bg-opacity-10 border-danger text-danger mb-4 rounded-3">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-4">
+                        <!-- عنوان شغلی -->
+                        <div class="col-md-6">
+                            <label for="{{ form.title.id_for_label }}">
+                                <i class="fas fa-heading"></i> عنوان شغلی
+                            </label>
+                            {{ form.title }}
+                        </div>
+
+                        <!-- شرکت -->
+                        <div class="col-md-6">
+                            <label for="{{ form.company.id_for_label }}">
+                                <i class="fas fa-building"></i> انتخاب شرکت
+                            </label>
+                            {{ form.company }}
+                            {% if form.company.errors %}
+                                <div class="text-danger small mt-1">{{ form.company.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- موقعیت مکانی -->
+                        <div class="col-md-6">
+                            <label for="{{ form.location.id_for_label }}">
+                                <i class="fas fa-map-marker-alt"></i> موقعیت مکانی
+                            </label>
+                            {{ form.location }}
+                        </div>
+
+                        <!-- حقوق -->
+                        <div class="col-md-6">
+                            <label for="{{ form.salary_min.id_for_label }}">
+                                <i class="fas fa-money-bill-wave"></i> حداقل حقوق (تومان)
+                            </label>
+                            {{ form.salary_min }}
+                        </div>
+
+                        <!-- توضیحات (بزرگ) -->
+                        <div class="col-12">
+                            <label for="{{ form.description.id_for_label }}">
+                                <i class="fas fa-align-right"></i> شرح وظایف و توضیحات
+                            </label>
+                            {{ form.description }}
+                        </div>
+
+                        <!-- نیازمندی‌ها -->
+                        <div class="col-md-6">
+                            <label for="{{ form.requirements.id_for_label }}">
+                                <i class="fas fa-tasks"></i> مهارت‌های مورد نیاز
+                            </label>
+                            {{ form.requirements }}
+                        </div>
+
+                        <!-- مزایا -->
+                        <div class="col-md-6">
+                            <label for="{{ form.benefits.id_for_label }}">
+                                <i class="fas fa-gift"></i> مزایا و تسهیلات
+                            </label>
+                            {{ form.benefits }}
+                        </div>
+
+                        <!-- سوئیچ انتشار -->
+                        <div class="col-12">
+                            <div class="toggle-wrapper">
+                                <label class="m-0 cursor-pointer" for="{{ form.is_active.id_for_label }}">
+                                    <i class="fas fa-rocket me-2"></i> انتشار آگهی در سایت انجام شود؟
+                                </label>
+                                <div class="form-check form-switch m-0">
+                                    {{ form.is_active }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- دکمه‌ها -->
+                        <div class="col-12 mt-4 pt-2">
+                            <div class="row">
+                                <div class="col-md-8 mb-2 mb-md-0">
+                                    <button type="submit" class="btn btn-glow w-100">
+                                        <i class="fas fa-check-circle me-2"></i> ثبت نهایی آگهی
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{% url 'jobs:home' %}" class="btn btn-glass-secondary w-100 text-center">
+                                        انصراف
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- اسکریپت جادویی برای خوشگل کردن اینپوت‌های جنگو -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // تمام اینپوت‌ها، سلکت‌ها و تکست‌اریاها رو پیدا کن
+        var inputs = document.querySelectorAll('input:not([type=checkbox]):not([type=radio]), select, textarea');
+
+        inputs.forEach(function(input) {
+            // کلاس glass-input رو بهشون اضافه کن تا استایل بگیرن
+            input.classList.add('glass-input');
+
+            // پلیس‌هولدرهای فارسی اضافه کن (اختیاری ولی قشنگه)
+            if (!input.placeholder) {
+                if(input.name === 'title') input.placeholder = 'مثلاً: برنامه نویس پایتون';
+                if(input.name === 'location') input.placeholder = 'مثلاً: تهران، جردن';
+                if(input.name === 'salary_min') input.placeholder = 'به تومان وارد کنید...';
+                if(input.name === 'description') input.placeholder = 'توضیحات کامل شغل را اینجا بنویسید...';
+            }
+        });
+
+        // تنظیم کلاس برای چک‌باکس (سوئیچ)
+        var checkboxes = document.querySelectorAll('input[type=checkbox]');
+        checkboxes.forEach(function(box) {
+            box.classList.add('form-check-input');
+        });
+    });
+</script>
+
+{% endblock %}

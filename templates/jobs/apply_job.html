@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}ارسال رزومه - {{ job.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            
+            <div class="card glass-card text-white border-0 shadow-lg rounded-4"
+                 style="background: rgba(30, 30, 40, 0.9); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1);">
+                
+                <div class="card-body p-5">
+                    
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <i class="fa-solid fa-cloud-arrow-up text-primary" style="font-size: 3rem;"></i>
+                        </div>
+                        <h3 class="fw-bold">ارسال رزومه</h3>
+                        <p class="text-white-50 small mt-2">
+                            برای موقعیت شغلی <span class="text-info">{{ job.title }}</span>
+                        </p>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small mb-2 ps-1">فایل رزومه خود را انتخاب کنید</label>
+                            {{ form.cv_file }}
+                            {% if form.cv_file.errors %}
+                                <div class="alert alert-danger mt-2 py-2 small">
+                                    {{ form.cv_file.errors }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-secondary small mt-1">
+                                <i class="fa-solid fa-circle-info me-1"></i> فرمت‌های مجاز: PDF, DOCX
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-2">
+                            <button type="submit" class="btn btn-primary py-3 fw-bold rounded-3 shadow-sm">
+                                <i class="fa-solid fa-paper-plane me-2"></i> ثبت و ارسال رزومه
+                            </button>
+                            <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-outline-light py-2 rounded-3 border-0">
+                                بازگشت
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

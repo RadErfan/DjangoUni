@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ job.title }} | جزئیات شغلی{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+
+        <!-- ستون سمت راست: اطلاعات کلی و دکمه اقدام -->
+        <div class="col-lg-4 mb-4">
+            <div class="card glass-card text-white border-0 shadow-lg sticky-top" style="top: 20px; background: rgba(30, 30, 40, 0.9); backdrop-filter: blur(15px);">
+                <div class="card-body p-4">
+
+                    <!-- لوگو شرکت -->
+                    <div class="text-center mb-4">
+                        <div class="bg-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fa-solid fa-building fa-2x text-dark"></i>
+                        </div>
+                        <h4 class="mt-3 fw-bold">{{ job.company.name }}</h4>
+
+                        {% if job.company.website %}
+                            <a href="{{ job.company.website }}" target="_blank" class="text-info text-decoration-none small">
+                                <i class="fa-solid fa-link"></i> مشاهده وب‌سایت
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <hr class="border-secondary">
+
+                    <!-- اطلاعات کلیدی -->
+                    <div class="d-flex flex-column gap-3 mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white-50"><i class="fa-solid fa-money-bill-wave me-2"></i>حقوق پایه:</span>
+                            <span class="fw-bold text-success">{{ job.salary_min|intcomma }} تومان</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white-50"><i class="fa-solid fa-location-dot me-2"></i>موقعیت:</span>
+                            <span>{{ job.location }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white-50"><i class="fa-regular fa-clock me-2"></i>تاریخ انتشار:</span>
+                            <span class="small">{{ job.created_at|date:"Y/m/d" }}</span>
+                        </div>
+                        <!-- وضعیت فعال/غیرفعال بودن آگهی -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-white-50"><i class="fa-solid fa-circle-info me-2"></i>وضعیت آگهی:</span>
+                            {% if job.is_active %}
+                                <span class="badge bg-success text-white">فعال</span>
+                            {% else %}
+                                <span class="badge bg-danger text-white">بسته شده</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- بخش دکمه‌های هوشمند -->
+                    <div class="d-grid gap-2">
+                        {% if request.user.is_authenticated %}
+
+                            {# حالت ۱: کاربر صاحب همین آگهی است #}
+                            {% if job.company.owner == request.user %}
+                                <a href="{% url 'jobs:job_update' job.id %}" class="btn btn-warning py-3 fw-bold text-dark shadow-sm">
+                                    <i class="fa-solid fa-pen-to-square me-2"></i> ویرایش آگهی
+                                </a>
+
+                            {# حالت جدید: اگر شغل غیرفعال است (برای غیر صاحب آگهی) #}
+                            {% elif not job.is_active %}
+                                <div class="alert alert-danger text-center m-0 py-3 border-danger" style="background: rgba(220, 53, 69, 0.2); color: #ffadad;" role="alert">
+                                    <i class="fa-solid fa-lock me-2"></i>
+                                    <strong>مهلت ارسال رزومه تمام شده است</strong>
+                                </div>
+
+                            {# حالت ۲: کاربر کارفرماست اما صاحب این آگهی نیست #}
+                            {% elif request.user.role == 'employer' %} <!-- نکته: مطمئن شو فیلد role یا is_employer رو درست چک می‌کنی -->
+                                <div class="alert alert-secondary text-center m-0 py-3" role="alert">
+                                    <i class="fa-solid fa-user-tie me-2"></i>
+                                    <small>ارسال رزومه مخصوص کارجویان است</small>
+                                </div>
+
+                            {# حالت ۳: کاربر کارجو است #}
+                            {% else %}
+                                {% if has_applied %}
+                                    <button class="btn btn-secondary py-3 disabled" disabled>
+                                        <i class="fa-solid fa-check-circle me-2"></i> رزومه ارسال شده
+                                    </button>
+                                {% else %}
+                                    <form action="{% url 'jobs:apply_job' job.id %}" method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <!-- اگر فیلد مخفی نیاز است اینجا اضافه شود -->
+                                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold shadow-sm pulse-button">
+                                            <i class="fa-solid fa-paper-plane me-2"></i> ارسال رزومه
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+
+                        {% else %}
+                            {# حالت ۴: کاربر لاگین نکرده #}
+                            {% if job.is_active %}
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-light py-3 fw-bold">
+                                    <i class="fa-solid fa-right-to-bracket me-2"></i> ورود جهت ارسال رزومه
+                                </a>
+                            {% else %}
+                                <div class="alert alert-danger text-center m-0 py-3" role="alert">
+                                    مهلت این آگهی تمام شده است
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- ستون سمت چپ: جزئیات کامل شغل -->
+        <div class="col-lg-8">
+            <div class="card glass-card text-white border-0 shadow-lg p-4" style="background: rgba(30, 30, 40, 0.8); backdrop-filter: blur(10px);">
+
+                <h1 class="fw-bold text-primary mb-4">{{ job.title }}</h1>
+
+                <!-- توضیحات شغل -->
+                <div class="mb-5">
+                    <h5 class="text-info border-bottom border-secondary pb-2 mb-3">
+                        <i class="fa-solid fa-align-right me-2"></i>شرح موقعیت شغلی
+                    </h5>
+                    <p class="text-light leading-loose text-justify" style="line-height: 1.8;">
+                        {{ job.description|linebreaks }}
+                    </p>
+                </div>
+
+                <!-- نیازمندی‌ها -->
+                <div class="mb-5">
+                    <h5 class="text-info border-bottom border-secondary pb-2 mb-3">
+                        <i class="fa-solid fa-list-check me-2"></i>نیازمندی‌ها و مهارت‌ها
+                    </h5>
+                    <div class="text-light" style="line-height: 1.8;">
+                        {{ job.requirements|linebreaks }}
+                    </div>
+                </div>
+
+                <!-- مزایا و تسهیلات -->
+                {% if job.benefits %}
+                <div class="mb-4">
+                    <h5 class="text-info border-bottom border-secondary pb-2 mb-3">
+                        <i class="fa-solid fa-gift me-2"></i>مزایا و تسهیلات
+                    </h5>
+                    <div class="text-light" style="line-height: 1.8;">
+                        {{ job.benefits|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* انیمیشن ریز برای دکمه ارسال رزومه */
+    @keyframes pulse-primary {
+        0% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(13, 110, 253, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(13, 110, 253, 0); }
+    }
+    .pulse-button {
+        animation: pulse-primary 2s infinite;
+    }
+</style>
+{% endblock %}

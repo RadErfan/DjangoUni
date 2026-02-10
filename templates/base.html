@@ -1,39 +1,368 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}کاریابی دانشگاه{% endblock %}</title>
+    <title>{% block title %}هم ساز | سامانه کاریابی{% endblock %}</title>
+
+    <!-- فونت وزیر -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- Bootstrap 5 RTL -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <style>body { font-family: Tahoma, sans-serif; background-color: #f8f9fa; }</style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --text-main: #f8fafc;
+            --primary-glow: #3b82f6;
+            --accent-glow: #8b5cf6;
+        }
+
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-color: #0f172a;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- پس‌زمینه متحرک --- */
+        .animated-bg-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 20s infinite alternate;
+        }
+
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, #3b82f6 0%, transparent 70%); animation-duration: 25s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: radial-gradient(circle, #8b5cf6 0%, transparent 70%); animation-duration: 30s; animation-direction: alternate-reverse; }
+        .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: radial-gradient(circle, #ec4899 0%, transparent 70%); animation-duration: 22s; opacity: 0.4; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(50px, 50px) rotate(10deg); }
+            100% { transform: translate(-30px, 20px) rotate(-5deg); }
+        }
+
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        /* --- نوبار --- */
+        .navbar-container {
+            display: flex; justify-content: center; padding-top: 25px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        }
+
+        .navbar-floating {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 12px 35px;
+            width: 92%;
+            max-width: 1250px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-brand { font-weight: 900; font-size: 1.5rem; color: white !important; display: flex; align-items: center; gap: 10px; }
+        .nav-link { color: #cbd5e1 !important; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: #fff !important; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        /* دکمه‌های ورود */
+        .btn-auth-outline { border: 1px solid rgba(255,255,255,0.2); color: white; border-radius: 50px; padding: 8px 24px; background: rgba(255,255,255,0.05); transition: 0.3s; text-decoration: none; }
+        .btn-auth-outline:hover { background: rgba(255,255,255,0.2); color: white; }
+        .btn-auth-primary { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border-radius: 50px; padding: 8px 24px; border: none; box-shadow: 0 0 15px rgba(59, 130, 246, 0.4); transition: 0.3s; text-decoration: none; }
+        .btn-auth-primary:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.6); transform: scale(1.05); }
+
+        .main-content-spacer { margin-top: 140px; }
+
+        /* --- استایل جدید دراپ‌داون --- */
+        .dropdown-menu {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 0.5rem;
+            min-width: 200px;
+            margin-top: 10px !important;
+        }
+        .dropdown-item {
+            color: #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 15px;
+            transition: all 0.2s;
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            padding-right: 20px; /* افکت حرکت ریز */
+        }
+        .dropdown-divider { border-color: rgba(255,255,255,0.1); }
+        .dropdown-header { color: #94a3b8; font-size: 0.8rem; }
+
+        /* --- استایل جدید فوتر --- */
+        footer {
+            background: linear-gradient(to top, #020617 0%, rgba(15, 23, 42, 0.8) 100%);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 80px;
+            padding-bottom: 30px;
+            margin-top: auto;
+            position: relative;
+        }
+
+        /* خط نئونی بالای فوتر */
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #3b82f6, #8b5cf6, transparent);
+            box-shadow: 0 0 10px #3b82f6;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: -webkit-linear-gradient(45deg, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .social-icon {
+            width: 40px; height: 40px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            color: white;
+            margin-left: 10px;
+            transition: 0.3s;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .social-icon:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .footer-links h6 { color: white; font-weight: bold; margin-bottom: 20px; position: relative; display: inline-block; }
+        .footer-links h6::after {
+            content: ''; position: absolute; bottom: -8px; right: 0; width: 30px; height: 2px;
+            background: #8b5cf6; border-radius: 2px;
+        }
+        .footer-links a { text-decoration: none; color: #94a3b8; display: block; margin-bottom: 12px; transition: 0.3s; }
+        .footer-links a:hover { color: #60a5fa; padding-right: 5px; }
+
+    </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-  <div class="container">
-    <a class="navbar-brand fw-bold" href="/">سامانه کاریابی</a>
-    <div class="collapse navbar-collapse">
-     <ul class="navbar-nav me-auto">
-    <li class="nav-item"><a class="nav-link" href="/">خانه</a></li>
-    <li class="nav-item"><a class="nav-link" href="/jobs/">فرصت‌های شغلی</a></li>
-
-    <li class="nav-item"><a class="nav-link fw-bold text-warning" href="/jobs/create/">+ ثبت آگهی جدید</a></li>
-    <li class="nav-item"><a class="nav-link" href="/register/">عضویت</a></li>
-</ul>
-      <a href="/admin" class="btn btn-light btn-sm">پنل مدیریت</a>
+    <!-- پس‌زمینه متحرک -->
+    <div class="animated-bg-wrapper">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
     </div>
-  </div>
-</nav>
+    <div class="grid-overlay"></div>
 
-<div class="container" style="min-height: 400px;">
-    {% block content %}
-    {% endblock %}
-</div>
+      <!-- نوبار اصلاح شده -->
+    <div class="navbar-container">
+        <nav class="navbar navbar-expand-lg navbar-floating">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="{% url 'jobs:home' %}"><i class="fas fa-rocket text-primary"></i> جاب‌استار</a>
 
-<footer class="bg-dark text-white text-center py-3 mt-5">
-    <p class="m-0">طراحی شده توسط عرفان راد - درس برنامه‌نویسی وب</p>
-</footer>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border:none; color:white;">
+                    <i class="fas fa-bars"></i>
+                </button>
 
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto">
+                        <li class="nav-item"><a class="nav-link" href="{% url 'jobs:home' %}">خانه</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'jobs:job_list' %}">فرصت‌های شغلی</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'jobs:company_list' %}">شرکت‌ها</a></li>
+
+                        <!-- 👇 اصلاحیه ۱: فقط کارفرما لینک "آگهی‌های من" رو ببینه 👇 -->
+                        {% if user.is_authenticated and user.is_employer %}
+                        <li class="nav-item">
+                           <a class="nav-link" href="{% url 'jobs:my_jobs' %}">
+    <i class="bi bi-briefcase-fill me-1"></i> آگهی‌های من
+</a>
+                        </li>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                            <!-- 👇 اصلاحیه ۲: تفکیک دقیق کارجو و کارفرما 👇 -->
+                            {% if user.is_jobseeker %}
+                                <li class="nav-item"><a class="nav-link" href="{% url 'jobs:sent_resumes' %}">رزومه</a></li>
+                            {% elif user.is_employer %}
+                                <li class="nav-item"><a class="nav-link" href="{% url 'jobs:employer_dashboard' %}">رزومه‌های من</a></li>
+                            {% endif %}
+
+                            <!-- 👇 اصلاحیه ۳: دکمه ثبت آگهی زرد فقط برای کارفرما 👇 -->
+                            {% if user.is_employer %}
+                                <li class="nav-item d-flex align-items-center mx-2">
+                                    <a href="{% url 'jobs:create_job' %}" class="btn btn-warning btn-sm rounded-pill fw-bold shadow-sm px-3 hover-scale">
+                                        <i class="fas fa-plus-circle me-1"></i> ثبت آگهی
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                        {% endif %}
+                    </ul>
+
+                    <div class="d-flex gap-2 align-items-center mt-3 mt-lg-0 justify-content-center">
+                        {% if user.is_authenticated %}
+                            <div class="dropdown">
+                                <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown">
+                                    <div class="bg-primary bg-opacity-25 rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                        <i class="fas fa-user text-white"></i>
+                                    </div>
+                                    <span>{{ user.username }}</span>
+                                </a>
+                                <!-- دراپ داون -->
+                                <ul class="dropdown-menu dropdown-menu-end animate slideIn">
+                                    <li><h6 class="dropdown-header">حساب کاربری</h6></li>
+
+                                    {% if user.is_jobseeker %}
+                                        <li><a class="dropdown-item" href="{% url 'jobs:edit_profile' %}"><i class="fas fa-user-edit me-2 opacity-50"></i> ویرایش پروفایل</a></li>
+                                    {% endif %}
+
+                                    {% if user.is_employer %}
+                                        <li><a class="dropdown-item" href="{% url 'jobs:create_job' %}"><i class="fas fa-plus-circle me-2 opacity-50"></i> ثبت آگهی جدید</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'jobs:employer_dashboard' %}"><i class="fas fa-tachometer-alt me-2 opacity-50"></i> رزومه های دریافتی</a></li>
+                                    {% endif %}
+
+                                    <li><a class="dropdown-item" href="{% url 'jobs:change_password' %}"><i class="fas fa-key me-2 opacity-50"></i> تغییر رمز عبور</a></li>
+
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form action="{% url 'jobs:logout' %}" method="post" class="m-0">
+                                            {% csrf_token %}
+                                            <button class="dropdown-item text-danger d-flex align-items-center">
+                                                <i class="fas fa-sign-out-alt me-2"></i> خروج
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'jobs:login' %}" class="btn-auth-outline">ورود</a>
+                            <a href="{% url 'jobs:signup' %}" class="btn-auth-primary">ثبت‌نام</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+
+    <!-- پیام‌ها -->
+    <div class="container main-content-spacer">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} bg-dark text-white border-0 shadow-lg fade show d-flex align-items-center">
+                    <i class="fas fa-info-circle me-2 fs-5"></i>
+                    {{ message }}
+                    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- محتوای اصلی -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- فوتر جدید و جذاب -->
+    <footer>
+        <div class="container">
+            <div class="row gy-5">
+                <div class="col-lg-4">
+                    <span class="footer-logo"><i class="fas fa-rocket"></i> جاب‌استار</span>
+                    <p class="text-white-50 small mt-3" style="line-height:1.9; text-align:justify;">
+                        ما در جاب‌استار تلاش می‌کنیم پلی شیشه‌ای و شفاف بین کارجویان با استعداد و کارفرمایان پیشرو بسازیم. با تکنولوژی روز، مسیر شغلی خود را هموار کنید.
+                    </p>
+                    <div class="mt-4">
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-6 col-lg-2 offset-lg-1 footer-links">
+                    <h6>دسترسی سریع</h6>
+                    <a href="{% url 'jobs:job_list' %}">جستجوی شغل</a>
+                    <a href="{% url 'jobs:company_list' %}">لیست شرکت‌ها</a>
+                    <a href="#">بلاگ آموزشی</a>
+                    <a href="#">سوالات متداول</a>
+                </div>
+
+                <div class="col-6 col-lg-2 footer-links">
+                    <h6>خدمات کارفرما</h6>
+                    <a href="{% url 'jobs:create_job' %}">درج آگهی فوری</a>
+                    <a href="#">تعرفه‌ها و پلن‌ها</a>
+                    <a href="#">جستجوی رزومه</a>
+                    <a href="#">مشاوره جذب</a>
+                </div>
+
+                <div class="col-lg-3 footer-links">
+                    <h6>تماس با ما</h6>
+                    <ul class="list-unstyled text-white-50 small">
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-phone-alt text-primary me-2 fs-5"></i>
+                            <span>۰935-361-6931</span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center">
+                            <i class="fas fa-envelope text-primary me-2 fs-5"></i>
+                            <span>raderfann@gmail.com</span>
+                        </li>
+                        <li class="d-flex align-items-start">
+                            <i class="fas fa-map-marker-alt text-primary me-2 fs-5 mt-1"></i>
+                            <span>تبریز، خطیب ، خیابان ورزش ، مرکز رشد دانشگاه شهید مدنی اذربایجان </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row mt-5 pt-4 border-top border-secondary border-opacity-25">
+                <div class="col-md-6 text-center text-md-end">
+                    <p class="small text-white-50 mb-0">© 1404 - تمامی حقوق برای جاب‌استار محفوظ است.</p>
+                </div>
+                <div class="col-md-6 text-center text-md-start">
+                    <p class="small text-white-50 mb-0">طراحی شده توسط عرفان راد</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

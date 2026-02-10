@@ -1,0 +1,66 @@
+/* تنظیم فونت برای کل سایت */
+body {
+    font-family: 'Vazirmatn', sans-serif !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* گرادینت بنفش-آبی */
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* افکت کارت شیشه‌ای (Glassmorphism) */
+.glass-card {
+    background: rgba(255, 255, 255, 0.85); /* سفید شفاف */
+    backdrop-filter: blur(12px); /* تاری پشت شیشه */
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* انیمیشن ورودی نرم */
+.fade-in-up {
+    animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* دکمه‌های سفارشی */
+.btn-primary-custom {
+    background: linear-gradient(45deg, #4776E6, #8E54E9);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(142, 84, 233, 0.4);
+    color: white;
+}
+
+/* استایل فیلدهای ورودی */
+.form-control {
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.15);
+    border-color: #764ba2;
+}
+
+.form-floating > label {
+    right: 0 !important;
+    left: auto !important;
+    transform-origin: 100% 0;
+}

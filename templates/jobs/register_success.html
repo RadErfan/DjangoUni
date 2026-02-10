@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="text-align: center; margin-top: 80px;">
+    <h1 style="color: #28a745; font-size: 3rem;">✅</h1>
+    <h2>ثبت‌نام انجام شد!</h2>
+    <br>
+    <p style="font-size: 18px; color: #555;">
+        لینک فعال‌سازی به ایمیل شما ارسال شد. 📩
+        <br>
+        لطفاً ایمیل خود را چک کنید و روی لینک کلیک کنید تا حساب شما فعال شود.
+    </p>
+
+    <hr style="width: 50%; margin: 30px auto;">
+
+    <a href="{% url 'jobs:home' %}" style="text-decoration: none; color: #007bff;">
+        بازگشت به صفحه اصلی
+    </a>
+</div>
+{% endblock %}

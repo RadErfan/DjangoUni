@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}ورود به حساب کاربری{% endblock %}
+
+{% block content %}
+<style>
+    /* استایل‌های اختصاصی فرم لاگین */
+    .glass-card {
+        background: rgba(33, 37, 41, 0.85); /* تیره و شیشه‌ای */
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    /* فیکس کردن ارور VS Code با استفاده از کد رنگ مستقیم */
+    .login-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        color: #fff !important;
+        transition: all 0.3s ease;
+    }
+
+    .login-input:focus {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border-color: #0d6efd !important; /* آبی بوت‌استرپ */
+        box-shadow: 0 0 15px rgba(13, 110, 253, 0.25) !important;
+    }
+
+    /* استایل لیبل‌های شناور (Floating Labels) */
+    .form-floating > label {
+        color: rgba(255, 255, 255, 0.6) !important;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label {
+        color: #0d6efd !important; /* آبی */
+        opacity: 1;
+        transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    .glow-bg {
+        position: absolute;
+        width: 300px; height: 300px;
+        background: #0d6efd;
+        filter: blur(150px);
+        opacity: 0.2;
+        z-index: -1;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+    }
+</style>
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="position-relative col-md-5 col-lg-4">
+
+        <!-- افکت نور پس‌زمینه -->
+        <div class="glow-bg"></div>
+
+        <div class="glass-card p-4 p-md-5 rounded-4 animate__animated animate__fadeIn">
+
+            <div class="text-center mb-4">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-25 text-primary rounded-circle" style="width: 60px; height: 60px;">
+                    <i class="bi bi-person-circle fs-2"></i>
+                </div>
+                <h3 class="fw-bold text-white">خوش آمدید</h3>
+                <p class="text-white-50 small">لطفاً برای ادامه وارد شوید</p>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- نمایش پیام‌های خطا -->
+                {% if form.errors %}
+                    <div class="alert alert-danger py-2 small text-center bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger rounded-3 mb-4">
+                        نام کاربری یا رمز عبور اشتباه است
+                    </div>
+                {% endif %}
+
+                <!-- نام کاربری -->
+                <div class="form-floating mb-3">
+                    <input type="text" name="username" class="form-control login-input rounded-3" id="floatingInput" placeholder="نام کاربری" required>
+                    <label for="floatingInput">نام کاربری</label>
+                </div>
+
+                <!-- رمز عبور -->
+                <div class="form-floating mb-4">
+                    <input type="password" name="password" class="form-control login-input rounded-3" id="floatingPassword" placeholder="رمز عبور" required>
+                    <label for="floatingPassword">رمز عبور</label>
+                </div>
+
+                <!-- دکمه ورود -->
+                <button class="btn btn-primary w-100 py-3 rounded-3 fw-bold mb-3 shadow-lg" type="submit">
+                    <i class="bi bi-box-arrow-in-left me-2"></i> ورود به حساب
+                </button>
+
+                <div class="text-center">
+                    <p class="text-white-50 small mb-2">حساب کاربری ندارید؟</p>
+                    <a href="{% url 'jobs:signup' %}" class="text-decoration-none text-primary fw-bold small">ثبت‌نام کنید</a>
+                </div>
+            </form>
+
+            <!-- جدا کننده -->
+            <div class="d-flex align-items-center my-4">
+                <hr class="flex-grow-1 border-secondary opacity-25">
+                <span class="px-2 text-white-50 small">یا</span>
+                <hr class="flex-grow-1 border-secondary opacity-25">
+            </div>
+
+            <!-- دکمه ورود با پیامک -->
+            <a href="{% url 'jobs:login_sms' %}" class="btn btn-outline-warning w-100 py-2 rounded-3 text-white border-warning border-opacity-25 hover-warning-bg d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-phone"></i>
+                ورود با شماره موبایل
+            </a>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

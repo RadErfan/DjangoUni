@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* این استایل‌ها با !important اعمال میشن که هیچ چیزی خرابشون نکنه */
+
+    .hero-section {
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    /* استایل تایتل اصلی */
+    .main-title {
+        font-weight: 900;
+        color: #ffffff;
+        text-shadow: 0 0 20px rgba(168, 85, 247, 0.8); /* سایه بنفش */
+        margin-bottom: 20px;
+    }
+
+    /* استایل باکس جستجو */
+    .custom-search-box {
+        background: #ffffff !important; /* حتما سفید */
+        border-radius: 15px;
+        padding: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        display: flex;
+        align-items: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .custom-input {
+        border: none !important;
+        background: transparent !important;
+        color: #333 !important; /* متن مشکی */
+        box-shadow: none !important;
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    .custom-input:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* استایل کارت‌های شغلی - فیکس شده */
+    .job-card-fixed {
+        background: rgba(30, 41, 59, 0.7) !important; /* پس‌زمینه تیره */
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 20px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px); /* ماتی شیشه */
+    }
+
+    .job-card-fixed:hover {
+        transform: translateY(-10px);
+        background: rgba(30, 41, 59, 0.9) !important;
+        border-color: rgba(167, 139, 250, 0.5) !important;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    }
+
+    /* آیکون شرکت */
+    .company-logo {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #fff, #e0e7ff);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #4f46e5;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* دکمه‌ها */
+    .btn-custom-search {
+        background: linear-gradient(90deg, #7c3aed, #4f46e5) !important;
+        color: white !important;
+        border-radius: 12px;
+        padding: 10px 30px;
+        font-weight: bold;
+        border: none;
+    }
+
+    .btn-view-job {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        width: 100%;
+        padding: 12px;
+        border-radius: 10px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        margin-top: 20px;
+        border: 1px solid rgba(255,255,255,0.2);
+        transition: 0.3s;
+    }
+
+    .btn-view-job:hover {
+        background: white;
+        color: #4f46e5;
+    }
+
+    /* بج‌ها (تگ‌ها) */
+    .custom-badge {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #ddd;
+        padding: 5px 12px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+    }
+</style>
+
+<!-- هدر و جستجو -->
+<div class="hero-section container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="display-3 main-title">شغل رویایی خودت رو <br> پیدا کن</h1>
+
+            <!-- فرم جستجو -->
+            <div class="custom-search-box mt-5">
+                <form action="{% url 'jobs:job_list' %}" method="GET" class="w-100 d-flex align-items-center flex-wrap">
+
+                    <!-- اینپوت عنوان -->
+                    <div class="d-flex align-items-center flex-grow-1 px-2" style="border-left: 1px solid #eee;">
+                        <i class="bi bi-search text-muted fs-5"></i>
+                        <input type="text" name="q" class="custom-input w-100" placeholder="عنوان شغل (مثلا: برنامه نویس)">
+                    </div>
+
+                    <!-- اینپوت حقوق -->
+                    <div class="d-flex align-items-center px-2 d-none d-md-flex" style="width: 200px;">
+                        <i class="bi bi-cash-stack text-muted fs-5"></i>
+                        <input type="number" name="min_price" class="custom-input w-100" placeholder="حداقل حقوق...">
+                    </div>
+
+                    <!-- دکمه -->
+                    <button type="submit" class="btn-custom-search ms-2">
+                        جستجو
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- لیست شغل‌ها -->
+<div class="container pb-5">
+    <!-- تیتر بخش -->
+    <div class="d-flex align-items-center mb-4 border-bottom border-secondary border-opacity-25 pb-3">
+        <h3 class="text-white fw-bold m-0"><i class="bi bi-stars text-warning me-2"></i>آخرین فرصت‌های شغلی</h3>
+    </div>
+
+    <div class="row g-4">
+        {% for job in jobs %}
+        <div class="col-md-6 col-lg-4">
+            <!-- کارت شغلی -->
+            <div class="job-card-fixed h-100 d-flex flex-column">
+
+                <!-- هدر کارت -->
+                <div class="d-flex align-items-start gap-3 mb-3">
+                    <div class="company-logo flex-shrink-0">
+                        <i class="bi bi-buildings-fill"></i>
+                    </div>
+                    <div>
+                        <h5 class="text-white fw-bold mb-1">{{ job.title }}</h5>
+                        <p class="text-white-50 small m-0">{{ job.company.name|default:"شرکت معتبر" }}</p>
+                    </div>
+                </div>
+
+                <!-- تگ‌ها -->
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="custom-badge">
+                        <i class="bi bi-geo-alt me-1 text-danger"></i> {{ job.location }}
+                    </span>
+                    <span class="custom-badge">
+                        <i class="bi bi-credit-card me-1 text-success"></i> {{ job.salary_min|intcomma }}
+                    </span>
+                </div>
+
+                <!-- توضیحات کوتاه -->
+                {% if job.requirements %}
+                <p class="text-white opacity-75 small mb-0 flex-grow-1" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ job.requirements }}
+                </p>
+                {% else %}
+                <div class="flex-grow-1"></div>
+                {% endif %}
+
+                <!-- دکمه مشاهده -->
+                <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-job">
+                    مشاهده و ارسال رزومه
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h4 class="text-white-50">هنوز شغلی ثبت نشده است :(</h4>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

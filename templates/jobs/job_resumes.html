@@ -1,0 +1,337 @@
+<!-- jobs/templates/jobs/job_resumes.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}مدیریت رزومه‌ها | {{ job.title }}{% endblock %}
+
+{% block content %}
+<!-- لود فونت آیکون‌ها (اگر در بیس نیست، اینجا محض اطمینان هست) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<!-- انیمیشن‌ها -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<style>
+    /* --- استایل‌های اختصاصی دارک برای این صفحه --- */
+
+    /* هدر صفحه: شیشه‌ای و تیره */
+    .page-header {
+        background: rgba(30, 41, 59, 0.7); /* رنگ تیره شیشه‌ای */
+        backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 40px;
+        text-align: center;
+        color: white;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .page-header h2 {
+        font-weight: 800;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+
+    .job-badge {
+        background: rgba(59, 130, 246, 0.2); /* آبی نئونی */
+        color: #60a5fa;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* --- کارت‌های رزومه --- */
+    .resume-card {
+        background: rgba(30, 41, 59, 0.6); /* اسلیت تیره */
+        backdrop-filter: blur(12px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.1); /* حاشیه نازک سفید */
+        padding: 25px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .resume-card:hover {
+        transform: translateY(-5px);
+        background: rgba(30, 41, 59, 0.8);
+        border-color: rgba(139, 92, 246, 0.5); /* بنفش موقع هاور */
+        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    /* هدر کارت (آواتار و نام) */
+    .card-head {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .avatar-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-left: 15px;
+        box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+    }
+
+    .candidate-info h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin: 0;
+        color: #f1f5f9; /* سفید روشن */
+    }
+    .candidate-info span {
+        font-size: 0.85rem;
+        color: #94a3b8; /* طوسی روشن */
+    }
+
+    /* بج وضعیت */
+    .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        width: 100%;
+        text-align: center;
+    }
+    /* رنگ‌ها کمی روشن‌تر شدن برای دارک مود */
+    .status-pending { background: rgba(214, 158, 46, 0.2); color: #ecc94b; border: 1px solid rgba(214, 158, 46, 0.3); }
+    .status-interview { background: rgba(56, 161, 105, 0.2); color: #68d391; border: 1px solid rgba(56, 161, 105, 0.3); }
+    .status-rejected { background: rgba(229, 62, 62, 0.2); color: #fc8181; border: 1px solid rgba(229, 62, 62, 0.3); }
+
+    /* دکمه دانلود */
+    .btn-download {
+        display: block;
+        background: rgba(255, 255, 255, 0.05);
+        color: #cbd5e0;
+        text-align: center;
+        padding: 10px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: 1px dashed rgba(255, 255, 255, 0.2);
+        transition: 0.2s;
+        margin-bottom: 15px;
+    }
+    .btn-download:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-color: #a0aec0;
+    }
+
+    /* دکمه‌های عملیات */
+    .action-row {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 10px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-accept {
+        background: linear-gradient(135deg, #10b981, #059669); /* سبز زمردی */
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    .btn-accept:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(16, 185, 129, 0.5); }
+    .btn-accept:disabled { background: #064e3b; opacity: 0.6; cursor: not-allowed; box-shadow: none; color: #9ca3af; }
+
+    .btn-reject {
+        background: transparent;
+        color: #fc8181;
+        border: 1px solid #fc8181;
+    }
+    .btn-reject:hover { background: rgba(252, 129, 129, 0.1); color: #fff; border-color: #fff; }
+
+    /* --- استایل مودال در دارک مود --- */
+    .modal-content {
+        background-color: #1e293b; /* پس‌زمینه تیره */
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-header .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%); /* سفید کردن دکمه بستن */
+    }
+    .modal-body input {
+        background-color: #0f172a;
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+    }
+    .modal-body input:focus {
+        background-color: #0f172a;
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+    }
+
+</style>
+
+<div class="container py-5">
+
+    <!-- هدر صفحه -->
+    <div class="page-header animate__animated animate__fadeInDown">
+        <h2 class="text-white">مدیریت متقاضیان</h2>
+        <div class="mt-2">
+            <span class="text-white-50">برای موقعیت شغلی:</span>
+            <span class="job-badge ms-2">{{ job.title }}</span>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-sm btn-outline-light rounded-pill px-3">
+                <i class="bi bi-arrow-right me-1"></i>بازگشت به داشبورد
+            </a>
+        </div>
+    </div>
+
+    <!-- گرید کارت‌ها -->
+    <div class="row g-4">
+        {% for resume in resumes %}
+        <div class="col-md-6 col-lg-4">
+            <div class="resume-card animate__animated animate__fadeInUp">
+
+                <!-- بخش بالا: آواتار و مشخصات -->
+                <div>
+                    <div class="card-head">
+                        <div class="avatar-circle">
+                            {{ resume.job_seeker.username|slice:":1"|upper }}
+                        </div>
+                        <div class="candidate-info">
+                            <h4>{{ resume.job_seeker.get_full_name|default:resume.job_seeker.username }}</h4>
+                            <span dir="ltr">ارسال شده: {{ resume.applied_at|date:"Y/m/d" }}</span>
+                        </div>
+                    </div>
+
+                    <!-- وضعیت -->
+                    {% if resume.status == 'pending' %}
+                        <div class="status-badge status-pending"><i class="bi bi-hourglass-split"></i> در انتظار بررسی</div>
+                    {% elif resume.status == 'interview' %}
+                        <div class="status-badge status-interview"><i class="bi bi-check-circle-fill"></i> دعوت به مصاحبه</div>
+                    {% elif resume.status == 'rejected' %}
+                        <div class="status-badge status-rejected"><i class="bi bi-x-circle-fill"></i> رد شده</div>
+                    {% endif %}
+                </div>
+
+                <!-- بخش پایین: دکمه‌ها -->
+                <div>
+                    <!-- دانلود رزومه -->
+                    {% if resume.cv_file %}
+                    <a href="{{ resume.cv_file.url }}" class="btn-download" target="_blank">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>دانلود فایل رزومه
+                    </a>
+                    {% else %}
+                    <div class="btn-download text-muted" style="cursor: not-allowed; opacity: 0.4;">
+                        <i class="bi bi-slash-circle me-1"></i>بدون رزومه
+                    </div>
+                    {% endif %}
+
+                    <!-- دکمه‌های عملیات (اگر هنوز رد نشده) -->
+                    {% if resume.status != 'rejected' %}
+                    <div class="action-row">
+                        <!-- دکمه رد (همیشه هست مگر اینکه قبلاً رد شده باشه) -->
+                        <form action="{% url 'jobs:change_status' resume.id 'rejected' %}" method="POST" class="flex-grow-1">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-reject w-100" onclick="return confirm('آیا از رد کردن این رزومه اطمینان دارید؟');">
+                                رد کردن
+                            </button>
+                        </form>
+
+                        <!-- منطق دکمه مصاحبه -->
+                        {% if resume.status == 'interview' %}
+                            <!-- اگر قبلا دعوت شده -->
+                            <button type="button" class="btn-action btn-accept flex-grow-1" disabled>
+                                <i class="bi bi-check-all"></i> دعوت شده
+                            </button>
+                        {% else %}
+                            <!-- اگر هنوز دعوت نشده -->
+                            <button type="button" class="btn-action btn-accept flex-grow-1"
+                                    data-bs-toggle="modal" data-bs-target="#modal-{{ resume.id }}">
+                                مصاحبه
+                            </button>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 🛑 مودال تعیین وقت مصاحبه -->
+        <div class="modal fade" id="modal-{{ resume.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg" style="border-radius: 20px;">
+                    <div class="modal-header bg-transparent border-bottom border-secondary border-opacity-25">
+                        <h5 class="modal-title fw-bold text-success">
+                            <i class="bi bi-calendar-event me-2"></i>زمان مصاحبه
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+
+                    <form action="{% url 'jobs:change_status' resume.id 'interview' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="modal-body p-4 text-center">
+                            <div class="mb-3">
+                                <span class="avatar-circle mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                                    {{ resume.job_seeker.username|slice:":1"|upper }}
+                                </span>
+                                <h5 class="text-white">{{ resume.job_seeker.get_full_name|default:resume.job_seeker.username }}</h5>
+                                <p class="text-white-50 small">تعیین وقت برای موقعیت {{ job.title }}</p>
+                            </div>
+
+                            <label class="form-label fw-bold text-start w-100 text-white">تاریخ و ساعت جلسه:</label>
+                            <!-- اینپوت تاریخ و ساعت -->
+                            <input type="datetime-local" name="interview_date" class="form-control form-control-lg text-center" required>
+                        </div>
+
+                        <div class="modal-footer border-0 justify-content-center pb-4">
+                            <button type="submit" class="btn btn-success px-5 py-2 rounded-pill shadow-sm">
+                                ثبت و ارسال دعوت‌نامه 🚀
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- پایان مودال -->
+
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Empty" width="150" class="opacity-25 mb-3" style="filter: invert(1);">
+            <h4 class="text-white">هنوز رزومه‌ای برای این شغل ارسال نشده!</h4>
+            <p class="text-white-50 small">منتظر بمانید تا کارجویان رزومه خود را ارسال کنند.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

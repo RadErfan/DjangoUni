@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+    /* همون استایل‌های قبلی (کپی شده برای راحتی کار) */
+    .btn-action { width: 35px; height: 35px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; transition: all 0.3s ease; border: 1px solid rgba(255, 255, 255, 0.1); margin: 0 3px; color: #fff; }
+    .btn-accept { background: rgba(0, 255, 127, 0.1); color: #00ff7f; border-color: rgba(0, 255, 127, 0.3); }
+    .btn-accept:hover, .btn-accept.active { background: #00ff7f; color: #000; box-shadow: 0 0 15px rgba(0, 255, 127, 0.4); }
+    .btn-reject { background: rgba(255, 59, 59, 0.1); color: #ff3b3b; border-color: rgba(255, 59, 59, 0.3); }
+    .btn-reject:hover, .btn-reject.active { background: #ff3b3b; color: #fff; box-shadow: 0 0 15px rgba(255, 59, 59, 0.4); }
+    .btn-delete { background: rgba(255, 255, 255, 0.05); color: #a0a0a0; }
+    .btn-delete:hover { background: #fff; color: #000; border-color: #fff; transform: scale(1.1); }
+    .btn-delete.disabled { opacity: 0.2; cursor: not-allowed; pointer-events: none; }
+    .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; }
+    .status-pending { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .status-interview { background: rgba(0, 255, 127, 0.2); color: #00ff7f; border: 1px solid rgba(0, 255, 127, 0.3); } /* اسم کلاس عوض شد */
+    .status-rejected { background: rgba(255, 59, 59, 0.2); color: #ff3b3b; border: 1px solid rgba(255, 59, 59, 0.3); }
+    .btn-download-cv { border: 1px solid #fff; border-radius: 20px; color: #fff; padding: 5px 15px; font-size: 0.8rem; text-decoration: none; transition: 0.3s; }
+    .btn-download-cv:hover { background: #fff; color: #000; }
+</style>
+
+<div class="glass-container mt-4 p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="table table-borderless text-white mb-0 align-middle text-center">
+            <thead style="background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <tr>
+                    <th class="py-3">کارجو</th>
+                    <th class="py-3">شغل درخواستی</th>
+                    <th class="py-3">تاریخ ارسال</th>
+                    <th class="py-3">فایل رزومه</th>
+                    <th class="py-3">وضعیت فعلی</th>
+                    <th class="py-3">تصمیم‌گیری</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- دقت کن متغیر applications رو از ویو بفرستی -->
+                {% for app in applications %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+
+                    <!-- ستون کارجو (اطلاعات از یوزر گرفته میشه) -->
+                    <td class="py-3">
+                        <!-- استفاده از متدهای یوزر جنگو -->
+                        <div class="fw-bold">
+                            {% if app.job_seeker.first_name %}
+                                {{ app.job_seeker.first_name }} {{ app.job_seeker.last_name }}
+                            {% else %}
+                                {{ app.job_seeker.username }}
+                            {% endif %}
+                        </div>
+                        <div class="small text-muted">{{ app.job_seeker.phone_number|default:"-" }}</div>
+                    </td>
+
+                    <!-- شغل -->
+                    <td>{{ app.job_position.title }}</td>
+
+                    <!-- تاریخ (با فیلد applied_at مدل خودت) -->
+                    <td class="text-muted" dir="ltr">{{ app.applied_at|date:"Y/m/d" }}</td>
+
+                    <!-- دانلود (فیلد cv_file) -->
+                    <td>
+                        {% if app.cv_file %}
+                            <a href="{{ app.cv_file.url }}" class="btn-download-cv" target="_blank">
+                                دانلود
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">ندارد</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- وضعیت فعلی -->
+                    <td>
+                        {% if app.status == 'pending' %}
+                            <span class="status-badge status-pending">در انتظار بررسی</span>
+                        {% elif app.status == 'interview' %} <!-- طبق مدل تو -->
+                            <span class="status-badge status-interview">دعوت به مصاحبه</span>
+                        {% elif app.status == 'rejected' %}
+                            <span class="status-badge status-rejected">رد شده</span>
+                        {% endif %}
+                    </td>
+
+                    <!-- دکمه‌ها -->
+                    <td>
+                        <div class="d-flex justify-content-center align-items-center">
+
+                            <!-- دکمه قبول (لینک به interview) -->
+                            <a href="{% url 'jobs:change_status' app.id 'interview' %}"
+                               class="btn-action btn-accept {% if app.status == 'interview' %}active{% endif %}"
+                               title="دعوت به مصاحبه">
+                                <i class="fa-solid fa-check"></i>
+                            </a>
+
+                            <!-- دکمه رد -->
+                            <a href="{% url 'jobs:change_status' app.id 'rejected' %}"
+                               class="btn-action btn-reject {% if app.status == 'rejected' %}active{% endif %}"
+                               title="رد کردن">
+                                <i class="fa-solid fa-xmark"></i>
+                            </a>
+
+                            <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.1); margin: 0 8px;"></div>
+
+                            <!-- دکمه حذف -->
+                            {% if app.status == 'pending' %}
+                                <span class="d-inline-block" tabindex="0" data-bs-toggle="tooltip" title="ابتدا تعیین تکلیف کنید">
+                                    <button class="btn-action btn-delete disabled">
+                                        <i class="fa-solid fa-trash-alt"></i>
+                                    </button>
+                                </span>
+                            {% else %}
+                                <a href="{% url 'jobs:delete_application' app.id %}"
+                                   class="btn-action btn-delete"
+                                   onclick="return confirm('حذف شود؟');">
+                                    <i class="fa-solid fa-trash-alt"></i>
+                                </a>
+                            {% endif %}
+
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-5 text-muted">هنوز رزومه‌ای نیامده.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

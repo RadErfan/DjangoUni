@@ -1,0 +1,358 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}داشبورد مدیریت | نسخه نئون پرو{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    .dashboard-container {
+        padding: 2rem;
+        min-height: 80vh;
+    }
+
+    .glass-panel {
+        background: rgba(18, 18, 24, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        padding: 2rem;
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 15px;
+    }
+
+    .custom-table thead th {
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 300;
+        font-size: 0.9rem;
+        padding-bottom: 1rem;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .custom-table thead th:first-child { text-align: right; padding-right: 20px; }
+
+    /* ردیف‌های کارت‌مانند */
+    .row-card {
+        background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.05) 100%);
+        transition: all 0.3s ease;
+        position: relative; /* این خط باعث میشه مودال خراب بشه اگه داخلش باشه */
+    }
+
+    .row-card td {
+        padding: 1.2rem;
+        vertical-align: middle;
+        border: none;
+        color: #fff;
+    }
+
+    .row-card td:first-child { border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+    .row-card td:last-child { border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+
+    .row-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        transform: translateY(-3px); /* این هم دشمن مودال‌های داخلیه! */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* آواتار */
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #FF00CC, #333399);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 800;
+        font-size: 1.2rem;
+        box-shadow: 0 0 15px rgba(255, 0, 204, 0.4);
+        border: 2px solid rgba(255,255,255,0.1);
+    }
+
+    /* دکمه‌های عملیات */
+    .action-group {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        background: rgba(0,0,0,0.2);
+        padding: 6px;
+        border-radius: 50px;
+        width: fit-content;
+        margin: 0 auto;
+        border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 1.1rem;
+        background: transparent;
+    }
+
+    .btn-approve { background: rgba(0, 255, 128, 0.15); color: #00ff80; }
+    .btn-approve:hover { background: #00ff80; color: #000; box-shadow: 0 0 15px #00ff80; transform: scale(1.15); }
+
+    .btn-reject { background: rgba(255, 50, 50, 0.15); color: #ff3232; }
+    .btn-reject:hover { background: #ff3232; color: #fff; box-shadow: 0 0 15px #ff3232; transform: scale(1.15); }
+
+    .btn-reset { background: rgba(255, 200, 0, 0.15); color: #ffc800; }
+    .btn-reset:hover { background: #ffc800; color: #000; box-shadow: 0 0 15px #ffc800; transform: rotate(-180deg) scale(1.15); }
+
+    .btn-trash { background: rgba(255, 255, 255, 0.1); color: #aaa; }
+    .btn-trash:hover:not(.disabled) { background: #dc3545; color: white; box-shadow: 0 0 15px #dc3545; transform: scale(1.15); }
+    .btn-trash.disabled { opacity: 0.2; cursor: not-allowed; filter: grayscale(100%); }
+
+    /* بج‌های وضعیت */
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-block;
+        min-width: 100px;
+    }
+    .badge-pending { background: rgba(255, 193, 7, 0.15); color: #ffca2c; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .badge-success { background: rgba(25, 135, 84, 0.2); color: #20c997; border: 1px solid rgba(32, 201, 151, 0.3); }
+    .badge-danger { background: rgba(220, 53, 69, 0.15); color: #ff6b6b; border: 1px solid rgba(255, 107, 107, 0.3); }
+
+    .btn-dl {
+        color: rgba(255,255,255,0.7);
+        text-decoration: none;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 5px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        transition: 0.3s;
+    }
+    .btn-dl:hover { background: white; color: black; box-shadow: 0 0 10px white; }
+
+    /* --- استایل مودال تاریک --- */
+    /* نکته مهم: z-index این باید خیلی بالا باشه */
+    .modal-dark-glass {
+        z-index: 1060 !important;
+    }
+    .modal-dark-glass .modal-content {
+        background: rgba(30, 30, 40, 0.95);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    }
+    .modal-dark-glass .modal-header { border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .modal-dark-glass .modal-footer { border-top: 1px solid rgba(255,255,255,0.1); }
+    .modal-dark-glass .btn-close { filter: invert(1); }
+
+    .form-control-dark {
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+    }
+    .form-control-dark:focus {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border-color: #00ff80;
+        box-shadow: 0 0 0 0.25rem rgba(0, 255, 128, 0.25);
+    }
+
+    /* آیکون تقویم در اینپوت */
+    ::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+</style>
+
+<div class="container dashboard-container">
+
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="text-white fw-bold mb-0" style="text-shadow: 0 0 10px rgba(255,255,255,0.5);">
+            <i class="bi bi-grid-fill me-2 text-primary"></i> داشبورد مدیریت
+        </h2>
+        <span class="text-white-50 small">{{ today_date }}</span>
+    </div>
+
+    <div class="glass-panel">
+        {% if resumes %}
+        <div class="table-responsive">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>مشخصات کارجو</th>
+                        <th>شغل</th>
+                        <th>تاریخ درخواست</th>
+                        <th>رزومه</th>
+                        <th>وضعیت فعلی</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for resume in resumes %}
+                    <tr class="row-card">
+                        <!-- 1. مشخصات -->
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-circle ms-3">
+                                    {{ resume.job_seeker.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <div class="text-white fw-bold fs-5">{{ resume.job_seeker.username }}</div>
+                                    <div class="text-white-50 small" style="font-family: monospace;">
+                                        {{ resume.job_seeker.phone_number|default:"No Phone" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- 2. شغل -->
+                        <td class="text-center text-white-50 fw-light">{{ resume.job_position.title }}</td>
+
+                        <!-- 3. تاریخ -->
+                        <td class="text-center text-white-50 small" dir="ltr">{{ resume.applied_at|date:"Y/m/d" }}</td>
+
+                        <!-- 4. دانلود -->
+                        <td class="text-center">
+                            {% if resume.cv_file %}
+                                <a href="{{ resume.cv_file.url }}" class="btn-dl" target="_blank">
+                                    <i class="bi bi-download"></i> دانلود
+                                </a>
+                            {% else %}
+                                <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- 5. وضعیت -->
+                        <td class="text-center">
+                            {% if resume.status == 'pending' %}
+                                <span class="status-badge badge-pending">
+                                    <i class="bi bi-hourglass-split me-1"></i> در انتظار
+                                </span>
+                            {% elif resume.status == 'interview' %}
+                                <span class="status-badge badge-success">
+                                    <i class="bi bi-check-circle-fill me-1"></i> مصاحبه
+                                </span>
+                            {% elif resume.status == 'rejected' %}
+                                <span class="status-badge badge-danger">
+                                    <i class="bi bi-x-circle-fill me-1"></i> رد شده
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- 6. دکمه‌های عملیات -->
+                        <td class="text-center">
+                            <div class="action-group">
+                                <!-- دکمه باز کردن مودال (فقط دکمه اینجاست!) -->
+                                <button type="button" class="action-btn btn-approve"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#interviewModal-{{ resume.id }}"
+                                        title="تعیین وقت مصاحبه">
+                                    <i class="bi bi-calendar-check"></i>
+                                </button>
+
+                                <!-- رد -->
+                                <a href="{% url 'jobs:change_status' resume.id 'rejected' %}"
+                                   class="action-btn btn-reject" title="رد درخواست">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+
+                                <!-- ریست -->
+                                {% if resume.status != 'pending' %}
+                                <a href="{% url 'jobs:change_status' resume.id 'pending' %}"
+                                   class="action-btn btn-reset" title="برگرداندن به حالت انتظار">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </a>
+                                {% endif %}
+
+                                <div style="width:1px; background:rgba(255,255,255,0.1); margin:0 2px;"></div>
+
+                                <!-- حذف -->
+                                {% if resume.status == 'pending' %}
+                                    <button class="action-btn btn-trash disabled" title="اول تعیین وضعیت کنید">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'jobs:delete_application' resume.id %}"
+                                       class="action-btn btn-trash"
+                                       onclick="return confirm('مطمئنی میخوای حذفش کنی؟');"
+                                       title="حذف دائمی">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                            <!-- ⛔ اینجا هیچ مودالی نیست! مودال‌ها رفتن پایین صفحه ⛔ -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-folder-x text-white-50 display-1 mb-3"></i>
+                <h3 class="text-white">هیچ رزومه‌ای یافت نشد!</h3>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- 🔥 بخش مودال‌ها (کاملاً خارج از جدول و پنل شیشه‌ای) 🔥 -->
+    <!-- اینجا دوباره حلقه میزنیم تا برای هر رزومه، مودال مخفی‌اش رو بسازیم -->
+    {% for resume in resumes %}
+    <div class="modal fade modal-dark-glass" id="interviewModal-{{ resume.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-success">
+                        <i class="bi bi-alarm me-2"></i>
+                        وقت مصاحبه: {{ resume.job_seeker.username }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form action="{% url 'jobs:change_status' resume.id 'interview' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body text-start">
+                        <div class="alert alert-dark border-0 bg-opacity-25 bg-secondary text-white-50 small mb-3">
+                            <i class="bi bi-info-circle me-1"></i>
+                            کارجو: <strong>{{ resume.job_seeker.get_full_name|default:resume.job_seeker.username }}</strong><br>
+                            برای پوزیشن: {{ resume.job_position.title }}
+                        </div>
+
+                        <label class="form-label text-white fw-bold small mb-2">📅 تاریخ و ساعت جلسه:</label>
+                        <input type="datetime-local" name="interview_date" class="form-control form-control-dark py-2" required>
+
+                        <div class="mt-3 small text-success">
+                            <i class="bi bi-chat-text-fill"></i>
+                            پیامک دعوت به صورت خودکار ارسال خواهد شد.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">انصراف</button>
+                        <button type="submit" class="btn btn-success btn-sm px-4">
+                            <i class="bi bi-send-check me-1"></i> تایید نهایی
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <!-- پایان بخش مودال‌ها -->
+
+</div>
+{% endblock %}

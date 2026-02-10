@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}لیست شرکت‌ها | هم ساز{% endblock %}
+
+{% block content %}
+<style>
+    .company-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .company-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(0, 210, 255, 0.3);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 210, 255, 0.15);
+    }
+
+    .logo-ring {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        padding: 5px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.01));
+        border: 1px solid rgba(255,255,255,0.1);
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.5s ease;
+        position: relative;
+    }
+
+    .company-card:hover .logo-ring {
+        border-color: #00d2ff;
+        box-shadow: 0 0 15px #00d2ff;
+        transform: scale(1.05);
+    }
+
+    .logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .btn-glass {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass:hover {
+        background: #00d2ff;
+        color: #000;
+        border-color: #00d2ff;
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+    }
+
+    .card-top-accent {
+        height: 4px;
+        width: 0;
+        background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: width 0.4s ease;
+    }
+
+    .company-card:hover .card-top-accent {
+        width: 100%;
+    }
+</style>
+
+<div class="container py-5 mb-5 pb-5">
+
+    <div class="text-center mb-5 fade-in-up">
+        <h1 class="display-5 fw-bold text-white mb-2">
+            شرکت‌های <span style="color: #00d2ff;">برتر</span>
+        </h1>
+        <p class="text-white-50 fs-5">جایی که آینده شغلی شما رقم می‌خورد</p>
+    </div>
+
+    <div class="row g-4">
+        {% for company in companies %}
+        <div class="col-md-6 col-lg-4">
+            <div class="company-card h-100 p-4 text-center d-flex flex-column">
+
+                <div class="card-top-accent"></div>
+
+                <div class="logo-ring">
+                    {% if company.logo %}
+                        <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="logo-img">
+                    {% else %}
+                        <i class="bi bi-building fs-1 text-white opacity-50"></i>
+                    {% endif %}
+                </div>
+
+                <h3 class="h4 text-white fw-bold mb-2">{{ company.name }}</h3>
+
+                <div class="text-info small mb-3">
+                    <i class="bi bi-geo-alt-fill me-1"></i> {{ company.location|default:"موقعیت نامشخص" }}
+                </div>
+
+                <p class="text-white-50 small mb-4 flex-grow-1" style="line-height: 1.6;">
+                    {{ company.description|striptags|truncatewords:20|default:"توضیحاتی برای این شرکت ثبت نشده است..." }}
+                </p>
+
+                <a href="{% url 'jobs:company_detail' company.pk %}" class="btn btn-glass w-100 rounded-pill py-2 fw-bold mt-auto">
+                    مشاهده پروفایل و آگهی‌ها
+                </a>
+
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-buildings display-1 text-white opacity-10"></i>
+            </div>
+            <h4 class="text-white">هنوز هیچ شرکتی ثبت نشده است!</h4>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+<!-- templates/jobs/verify_sms.html -->
+
+{% extends 'base.html' %} <!-- اگر فایل بیس داری این خط باشه، اگر نه حذفش کن -->
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; font-family: sans-serif;">
+
+    <div style="background-color: #232334; padding: 40px; border-radius: 15px; text-align: center; color: white; width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+
+        <!-- نمایش ارورها -->
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background-color: #ff4444; color: white; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <h3 style="margin-bottom: 10px;">کد تایید را وارد کنید</h3>
+        <p style="font-size: 13px; color: #aaa; margin-bottom: 30px;">
+            کد ۴ رقمی به شماره {{ phone_number }} ارسال شد
+        </p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="text" name="code" placeholder="____" maxlength="4" required autofocus
+                   style="width: 100%; padding: 15px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #444; background: #2e2e42; color: white; text-align: center; letter-spacing: 15px; font-size: 24px; outline: none;">
+
+            <button type="submit"
+                    style="width: 100%; padding: 12px; background-color: #198754; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; font-weight: bold;">
+                ورود به حساب
+            </button>
+        </form>
+
+        <div style="margin-top: 20px;">
+            <a href="{% url 'jobs:login_sms' %}" style="color: #aaa; font-size: 12px; text-decoration: none;">
+                تغییر شماره موبایل
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

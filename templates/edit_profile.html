@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}ویرایش پروفایل | هم ساز{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-6">
+        <div class="glass-panel p-5 rounded-4 border border-white border-opacity-25 position-relative overflow-hidden">
+            <!-- نویز پس‌زمینه -->
+            <div class="position-absolute top-0 end-0 bg-warning rounded-circle" style="width: 150px; height: 150px; filter: blur(80px); opacity: 0.1;"></div>
+            
+            <h3 class="text-white text-center mb-4 fw-bold">
+                <i class="fas fa-user-edit text-primary me-2"></i>ویرایش اطلاعات کاربری
+            </h3>
+
+            <form method="post" novalidate> <!-- novalidate اضافه شد تا ارورهای مرورگر مزاحم نشن و ارور جنگو رو ببینیم -->
+                {% csrf_token %}
+
+                <!-- ارور کلی فرم -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger small rounded-3 mb-3 text-center">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <!-- نام -->
+                <div class="mb-3">
+                    <label class="form-label text-white-50 small">نام</label>
+                    <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" class="form-control bg-transparent text-white rounded-pill py-2 px-3 shadow-none {% if form.first_name.errors %}is-invalid border-danger{% endif %}" style="border: 1px solid rgba(255,255,255,0.3);">
+
+                    <!-- نمایش ارور خاص این فیلد -->
+                    {% if form.first_name.errors %}
+                        <div class="text-danger small mt-1 ms-2">
+                            {% for error in form.first_name.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- نام خانوادگی -->
+                <div class="mb-3">
+                    <label class="form-label text-white-50 small">نام خانوادگی</label>
+                    <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" class="form-control bg-transparent text-white rounded-pill py-2 px-3 shadow-none {% if form.last_name.errors %}is-invalid border-danger{% endif %}" style="border: 1px solid rgba(255,255,255,0.3);">
+
+                    <!-- نمایش ارور خاص این فیلد -->
+                    {% if form.last_name.errors %}
+                        <div class="text-danger small mt-1 ms-2">
+                            {% for error in form.last_name.errors %}
+                                <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- ایمیل -->
+                <div class="mb-4">
+                    <label class="form-label text-white-50 small">ایمیل</label>
+                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-control bg-transparent text-white rounded-pill py-2 px-3 shadow-none {% if form.email.errors %}is-invalid border-danger{% endif %}" style="border: 1px solid rgba(255,255,255,0.3);">
+
+                    <!-- نمایش ارور خاص این فیلد -->
+                    {% if form.email.errors %}
+                        <div class="text-warning small mt-1 ms-2 fw-bold"> <!-- رنگش رو زرد کردم که تو چشم باشه -->
+                            {% for error in form.email.errors %}
+                                <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary rounded-pill py-2 fw-bold shadow-lg hover-scale">
+                        <i class="fas fa-save me-1"></i> ذخیره تغییرات
+                    </button>
+                    <a href="{% url 'jobs:home' %}" class="btn btn-outline-light rounded-pill py-2">
+                        انصراف
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

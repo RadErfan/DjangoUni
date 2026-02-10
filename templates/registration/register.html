@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عضویت در کهکشان کار</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        :root {
+            --primary-glow: #8b5cf6;
+            --secondary-glow: #ec4899;
+            --glass-bg: rgba(15, 23, 42, 0.95);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            background-color: #020617;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(76, 29, 149, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.3) 0%, transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            padding: 45px;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        .glow-title {
+            font-size: 2.2rem;
+            background: linear-gradient(to right, #a78bfa, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+        /* --- FIX: Input Layout --- */
+        .input-wrapper {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .input-wrapper:focus-within {
+            border-color: var(--primary-glow);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+        }
+        .input-icon-box {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 50px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 1.4rem;
+            z-index: 0; /* لایه زیرین - کلیک روی این نمیاد */
+            pointer-events: none;
+        }
+        .real-input {
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+            height: 100% !important;
+            width: 100% !important;
+            outline: none !important;
+            padding-right: 50px !important;
+            padding-left: 15px !important;
+            font-size: 1.1rem !important;
+            position: relative;
+            z-index: 10; /* لایه رویی - کلیک رو دریافت میکنه */
+        }
+        .real-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.95rem;
+        }
+        /* --- Switch --- */
+        .role-switch-container {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50px;
+            padding: 6px;
+            position: relative;
+            display: flex;
+            height: 60px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .switch-blob {
+            position: absolute;
+            top: 6px;
+            bottom: 6px;
+            width: calc(50% - 6px);
+            border-radius: 40px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.5);
+            right: 6px;
+        }
+        .switch-blob.move-left {
+            transform: translateX(calc(-100% - 12px));
+            background: linear-gradient(90deg, #ec4899, #f43f5e);
+            box-shadow: 0 2px 10px rgba(236, 72, 153, 0.5);
+        }
+        .role-btn {
+            flex: 1;
+            text-align: center;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .role-btn.active { color: white; }
+        .btn-register {
+            background: linear-gradient(90deg, #4f46e5, #9333ea);
+            border: none;
+            padding: 16px;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: white;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.6);
+            color: white;
+        }
+        .company-box {
+            margin-top: 30px;
+            display: none;
+            border-right: 4px solid var(--secondary-glow);
+            padding-right: 15px;
+        }
+        .row.g-3 { --bs-gutter-y: 1.5rem; --bs-gutter-x: 1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="glass-card animate__animated animate__fadeIn">
+        <div class="text-center mb-5">
+            <h2 class="glow-title">عضویت جدید</h2>
+            <p class="text-white-50 fs-5">به کهکشان کار خوش اومدی 🚀</p>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <!-- Hidden Fields -->
+            <div style="display: none;">
+                {{ form.is_jobseeker }}
+                {{ form.is_employer }}
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger py-3 mb-4 rounded-3 text-center fs-6">
+                   لطفاً اطلاعات ورودی را بررسی کنید
+                </div>
+            {% endif %}
+
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-person"></i></span>
+                        {{ form.first_name }}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-person-fill"></i></span>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-at"></i></span>
+                        {{ form.username }}
+                    </div>
+                    {% if form.username.errors %}<div class="text-danger small mt-1 me-2">{{ form.username.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-envelope"></i></span>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}<div class="text-danger small mt-1 me-2">{{ form.email.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="col-12">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-phone"></i></span>
+                        {{ form.phone_number }}
+                    </div>
+                </div>
+
+                <div class="col-6">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-key"></i></span>
+                        {{ form.pass1 }}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="input-wrapper">
+                        <span class="input-icon-box"><i class="bi bi-check2-circle"></i></span>
+                        {{ form.pass2 }}
+                    </div>
+                </div>
+                {% if form.pass1.errors %}<div class="col-12 text-danger small text-center">{{ form.pass1.errors.0 }}</div>{% endif %}
+
+                <!-- Role Switch -->
+                <div class="col-12 mt-5">
+                    <div class="d-flex justify-content-between align-items-center mb-2 px-2">
+                        <span class="text-white-50 small">نوع حساب کاربری:</span>
+                    </div>
+                    <div class="role-switch-container" onclick="toggleRole()">
+                        <div class="switch-blob" id="switchBlob"></div>
+                        <div class="role-btn active" id="btnSeeker">
+                            <i class="bi bi-search me-2"></i> کارجو
+                        </div>
+                        <div class="role-btn" id="btnEmployer">
+                            <i class="bi bi-briefcase me-2"></i> کارفرما
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Field -->
+                <div class="col-12 company-box animate__animated animate__fadeIn" id="companyBox">
+                    <label class="mb-2 ms-1 d-block" style="color: #ec4899; font-weight: bold; font-size: 0.95rem;">نام مجموعه شما:</label>
+                    <div class="input-wrapper" style="border-color: rgba(236, 72, 153, 0.4);">
+                        <span class="input-icon-box" style="color: #ec4899;"><i class="bi bi-building"></i></span>
+                        {{ form.company_name }}
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <button type="submit" class="btn btn-register w-100">
+                        ایجاد حساب کاربری <i class="bi bi-arrow-left ms-2"></i>
+                    </button>
+                </div>
+
+                <div class="col-12 text-center mt-3">
+                    <a href="{% url 'jobs:login' %}" class="text-white-50 text-decoration-none small">
+                        قبلاً ثبت‌نام کردی؟ <span class="text-white fw-bold">ورود</span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const inpSeeker = document.querySelector('input[name="is_jobseeker"]');
+        const inpEmployer = document.querySelector('input[name="is_employer"]');
+        const inpCompany = document.querySelector('input[name="company_name"]');
+
+        const btnSeeker = document.getElementById('btnSeeker');
+        const btnEmployer = document.getElementById('btnEmployer');
+        const switchBlob = document.getElementById('switchBlob');
+        const companyBox = document.getElementById('companyBox');
+
+        let currentRole = 'seeker';
+
+        function toggleRole() {
+            if (currentRole === 'seeker') {
+                setRole('employer');
+            } else {
+                setRole('seeker');
+            }
+        }
+
+        function setRole(role) {
+            currentRole = role;
+            if (role === 'seeker') {
+                switchBlob.classList.remove('move-left');
+                btnSeeker.classList.add('active');
+                btnEmployer.classList.remove('active');
+                companyBox.style.display = 'none';
+
+                inpSeeker.checked = true;
+                inpEmployer.checked = false;
+                inpCompany.required = false;
+                inpCompany.value = '';
+
+            } else {
+                switchBlob.classList.add('move-left');
+                btnEmployer.classList.add('active');
+                btnSeeker.classList.remove('active');
+                companyBox.style.display = 'block'; // نمایش باکس شرکت
+
+                inpSeeker.checked = false;
+                inpEmployer.checked = true;
+                inpCompany.required = true;
+            }
+        }
+
+        // --- اصلاح نهایی برای مشکل تایپ ---
+        document.addEventListener('DOMContentLoaded', function() {
+            // ۱. حذف کلاس‌های مزاحم جنگو از تمام اینپوت‌ها
+            const inputs = document.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"])');
+            inputs.forEach(input => {
+                input.className = ''; // حذف همه کلاس‌های قبلی
+                input.classList.add('real-input'); // اضافه کردن کلاس صحیح ما
+                // اطمینان از اینکه z-index درست است
+                input.style.zIndex = "10";
+            });
+
+            // ۲. بررسی وضعیت اولیه (مثلاً اگر فرم خطا داده و ریلود شده)
+            if (inpEmployer.checked) {
+                setRole('employer');
+            } else {
+                setRole('seeker');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}ارسال رزومه{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h4>ارسال رزومه</h4>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-success">ارسال</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
